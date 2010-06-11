@@ -1,5 +1,47 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
-</map>
+    <key>ares</key>
+    <map>
+      <key>build</key>
+      <map>
+        <key>common</key>
+        <map>
+          <key>command</key>
+          <string>bash ./build-cmd.sh</string>
+        </map>
+      </map>
+      <key>builddir</key>
+      <string>stage</string>
+      <key>license</key>
+      <string>c-ares</string>
+      <key>licensefile</key>
+      <string>LICENSES/c-ares.txt</string>
+      <key>manifest</key>
+      <map>
+        <key>common</key>
+        <map>
+          <key>files</key>
+          <array>
+            <string>include/ares/*.h</string>
+            <string>LICENSES/c-ares.txt</string>
+          </array>
+        </map>
+        <key>windows</key>
+        <map>
+          <key>files</key>
+          <array>
+            <string>lib/debug/*.lib</string>
+            <string>lib/release/*.lib</string>
+          </array>
+        </map>
+      </map>
+      <key>sourcedir</key>
+      <string>c-ares-1.7.1</string>
+      <key>uploadtos3</key>
+      <boolean>true</boolean>
+      <key>version</key>
+      <string>1.7.1</string>
+    </map>
+  </map>
 </llsd>

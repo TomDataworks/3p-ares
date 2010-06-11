@@ -44,21 +44,20 @@ if [ "$OSTYPE" == 'cygwin' ] ; then
 fi
 
 # load autbuild provided shell functions and variables
-set +x
 eval "$("$AUTOBUILD" source_environment)"
-set -x
 
 "$AUTOBUILD" build
 
 "$AUTOBUILD" package
 
-FOO_INSTALLABLE_PACKAGE_FILENAME="$(ls -1 foo-$FOO_VERSION-$AUTOBUILD_PLATFORM-$(date +%Y%m%d)*.tar.bz2)"
-upload_item installer "$FOO_INSTALLABLE_PACKAGE_FILENAME" application/octet-stream
+ARES_VERSION=1.7.1
+ARES_INSTALLABLE_PACKAGE_FILENAME="$(ls -1 ares-$ARES_VERSION-$AUTOBUILD_PLATFORM-$(date +%Y%m%d)*.tar.bz2)"
+"$AUTOBUILD" upload "$ARES_INSTALLABLE_PACKAGE_FILENAME"
 
-FOO_INSTALLABLE_PACKAGE_MD5="$(calc_md5 "$FOO_INSTALLABLE_PACKAGE_FILENAME")"
-echo "{'md5':'$FOO_INSTALLABLE_PACKAGE_MD5', 'url':'http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/$FOO_INSTALLABLE_PACKAGE_FILENAME'}" > "output.json"
+ARES_INSTALLABLE_PACKAGE_MD5="$(calc_md5 "$ARES_INSTALLABLE_PACKAGE_FILENAME")"
+echo "{'md5':'$ARES_INSTALLABLE_PACKAGE_MD5', 'url':'http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/$ARES_INSTALLABLE_PACKAGE_FILENAME'}" > "output.json"
 
-upload_item docs "output.json" text/plain
+upload_item installer "output.json" text/plain
 
 pass
 

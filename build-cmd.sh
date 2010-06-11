@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # turn on verbose debugging output for parabuild logs.
 set -x
@@ -13,37 +13,51 @@ if [ "$OSTYPE" = "cygwin" ] ; then
     export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
 fi
 
+ARES_VERSION=1.7.1
+ARES_ARCHIVE="c-ares-$ARES_VERSION.tar.gz"
+ARES_SOURCE_DIR="c-ares-$ARES_VERSION"
+
+
 # load autbuild provided shell functions and variables
-set +x
 eval "$("$AUTOBUILD" source_environment)"
-set -x
 
-fetch_archive "$FOO_URL" "$FOO_ARCHIVE" "$FOO_MD5"
-extract "$FOO_ARCHIVE"
+extract "$ARES_ARCHIVE"
 
-top="$(pwd)"
-cd "$FOO_SOURCE_DIR"
+stage="$(pwd)/stage"
+
+pushd "$ARES_SOURCE_DIR"
     case "$AUTOBUILD_PLATFORM" in
         "windows")
-            build_sln "foo.sln" "Debug|Win32"
-            build_sln "foo.sln" "Release|Win32"
-            mkdir -p stage/lib/{debug,release}
-            cp "Debug/foo.lib" \
-                "stage/lib/debug/foo.lib"
-            cp "Release/foo.lib" \
-                "stage/lib/release/foo.lib"
-            mkdir -p "stage/include/foo"
-            cp foo.h "stage/include/foo"
+            load_vsvars
+
+            # apply patch to add getnameinfo support
+            #patch -p1 < "../ares-getnameinfo.patch"
+
+            nmake /f Makefile.msvc CFG=lib-debug
+            nmake /f Makefile.msvc CFG=lib-release
+
+
+            mkdir -p "$stage/lib"/{debug,release}
+            cp "msvc80/cares/lib-debug/libcaresd.lib" \
+                "$stage/lib/debug/areslib.lib"
+            cp "msvc80/cares/lib-release/libcares.lib" \
+                "$stage/lib/release/areslib.lib"
+
+            mkdir -p "$stage/include/ares"
+            cp {ares,ares_dns,ares_version,ares_build}.h \
+                "$stage/include/ares/"
+
         ;;
         *)
-            ./configure --prefix="$(pwd)/stage"
+            ./configure --prefix="$stage"
             make
             make install
         ;;
     esac
-    mkdir -p stage/LICENSES
-    cp COPYING stage/LICENSES/foo.txt
-cd "$top"
+    mkdir -p "$stage/LICENSES"
+	# copied from http://c-ares.haxx.se/license.html
+    cp ../c-ares-license.txt "$stage/LICENSES/c-ares.txt"
+popd
 
 pass
 
