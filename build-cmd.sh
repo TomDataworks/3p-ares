@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 # turn on verbose debugging output for parabuild logs.
 set -x
 # make errors fatal
@@ -42,11 +44,6 @@ pushd "$ARES_SOURCE_DIR"
                 "$stage/lib/debug/areslib.lib"
             cp "msvc80/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
-
-            mkdir -p "$stage/include/ares"
-            cp {ares,ares_dns,ares_version,ares_build}.h \
-                "$stage/include/ares/"
-
         ;;
         *)
             ./configure --prefix="$stage"
@@ -54,6 +51,11 @@ pushd "$ARES_SOURCE_DIR"
             make install
         ;;
     esac
+    
+    mkdir -p "$stage/include/ares"
+    cp {ares,ares_dns,ares_version,ares_build}.h \
+        "$stage/include/ares/"
+
     mkdir -p "$stage/LICENSES"
 	# copied from http://c-ares.haxx.se/license.html
     cp ../c-ares-license.txt "$stage/LICENSES/c-ares.txt"
