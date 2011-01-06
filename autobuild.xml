@@ -79,6 +79,10 @@
               <string>Release</string>
             </map>
           </map>
+          <key>manifest</key>
+          <array>
+            <string>lib/libcares.a</string>
+          </array>
           <key>name</key>
           <string>linux</string>
         </map>
