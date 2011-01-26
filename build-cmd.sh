@@ -16,14 +16,11 @@ if [ "$OSTYPE" = "cygwin" ] ; then
 fi
 
 ARES_VERSION=1.7.1
-ARES_ARCHIVE="c-ares-$ARES_VERSION.tar.gz"
 ARES_SOURCE_DIR="c-ares-$ARES_VERSION"
 
 
 # load autbuild provided shell functions and variables
 eval "$("$AUTOBUILD" source_environment)"
-
-extract "$ARES_ARCHIVE"
 
 stage="$(pwd)/stage"
 
