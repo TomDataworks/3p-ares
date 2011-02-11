@@ -37,9 +37,9 @@ pushd "$ARES_SOURCE_DIR"
 
 
             mkdir -p "$stage/lib"/{debug,release}
-            cp "msvc80/cares/lib-debug/libcaresd.lib" \
+            cp "msvc100/cares/lib-debug/libcaresd.lib" \
                 "$stage/lib/debug/areslib.lib"
-            cp "msvc80/cares/lib-release/libcares.lib" \
+            cp "msvc100/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
         ;;
         *)
