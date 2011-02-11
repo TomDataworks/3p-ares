@@ -50,7 +50,7 @@ pushd "$ARES_SOURCE_DIR"
     esac
     
     mkdir -p "$stage/include/ares"
-    cp {ares,ares_dns,ares_version,ares_build}.h \
+    cp {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
         "$stage/include/ares/"
 
     mkdir -p "$stage/LICENSES"
