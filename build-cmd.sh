@@ -42,6 +42,11 @@ pushd "$ARES_SOURCE_DIR"
             cp "msvc100/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
         ;;
+        "linux")
+            LDFLAGS="-m32" CFLAGS="-m32" CXXFLAGS="-m32" ./configure --prefix="$stage"
+            make
+            make install
+        ;;
         *)
             ./configure --prefix="$stage"
             make
