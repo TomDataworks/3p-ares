@@ -46,6 +46,9 @@ pushd "$ARES_SOURCE_DIR"
             LDFLAGS="-m32" CFLAGS="-m32" CXXFLAGS="-m32" ./configure --prefix="$stage"
             make
             make install
+            mv "$stage/lib" "$stage/release"
+            mkdir -p "$stage/lib"
+            mv "$stage/release" "$stage/lib"
         ;;
         *)
             ./configure --prefix="$stage"

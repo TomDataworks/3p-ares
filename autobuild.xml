@@ -81,7 +81,7 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/libcares.a</string>
+            <string>lib/release/libcares.a</string>
           </array>
           <key>name</key>
           <string>linux</string>
