@@ -15,7 +15,7 @@ if [ "$OSTYPE" = "cygwin" ] ; then
     export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
 fi
 
-ARES_VERSION=1.7.1
+ARES_VERSION=1.7.4
 ARES_SOURCE_DIR="c-ares-$ARES_VERSION"
 
 
@@ -42,6 +42,15 @@ pushd "$ARES_SOURCE_DIR"
             cp "msvc100/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
         ;;
+        "darwin")
+            opts='-arch i386 -iwithsysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5'
+            export CFLAGS="$opts"
+            export CXXFLAGS="$opts"
+            export LDFLAGS="$opts"
+            ./configure --prefix="$stage"
+            make
+            make install
+        ;;
         "linux")
             LDFLAGS="-m32" CFLAGS="-m32" CXXFLAGS="-m32" ./configure --prefix="$stage"
             make
@@ -49,11 +58,6 @@ pushd "$ARES_SOURCE_DIR"
             mv "$stage/lib" "$stage/release"
             mkdir -p "$stage/lib"
             mv "$stage/release" "$stage/lib"
-        ;;
-        *)
-            ./configure --prefix="$stage"
-            make
-            make install
         ;;
     esac
     
