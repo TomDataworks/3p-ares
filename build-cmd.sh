@@ -15,7 +15,7 @@ if [ "$OSTYPE" = "cygwin" ] ; then
     export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
 fi
 
-ARES_VERSION=1.7.4
+ARES_VERSION=1.7.1
 ARES_SOURCE_DIR="c-ares-$ARES_VERSION"
 
 
