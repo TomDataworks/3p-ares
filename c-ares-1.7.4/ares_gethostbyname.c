@@ -208,8 +208,7 @@ static void host_callback(void *arg, int status, int timeouts,
         }
       end_hquery(hquery, status, host);
     }
-  else if ((status == ARES_ENODATA || status == ARES_EBADRESP ||
-            status == ARES_ETIMEOUT) && hquery->sent_family == AF_INET6)
+  else if (hquery->sent_family == AF_INET6)
     {
       /* The AAAA query yielded no useful result.  Now look up an A instead.
          We should possibly limit this attempt-next logic to AF_UNSPEC lookups
