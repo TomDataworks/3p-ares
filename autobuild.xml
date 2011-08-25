@@ -111,9 +111,9 @@
         </map>
       </map>
       <key>source_directory</key>
-      <string>c-ares-1.7.4</string>
+      <string>c-ares-1.7.5</string>
       <key>version</key>
-      <string>1.7.4</string>
+      <string>1.7.5</string>
     </map>
     <key>type</key>
     <string>autobuild</string>
