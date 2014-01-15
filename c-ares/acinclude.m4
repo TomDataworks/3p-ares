@@ -30,7 +30,7 @@ CURL_DEF_TOKEN $1
   ],[
     tmp_exp=`eval "$ac_cpp conftest.$ac_ext" 2>/dev/null | \
       "$GREP" CURL_DEF_TOKEN 2>/dev/null | \
-      "$SED" 's/.*CURL_DEF_TOKEN[[ ]]//' 2>/dev/null | \
+      "$SED" 's/.*CURL_DEF_TOKEN[[ ]][[ ]]*//' 2>/dev/null | \
       "$SED" 's/[["]][[ ]]*[["]]//g' 2>/dev/null`
     if test -z "$tmp_exp" || test "$tmp_exp" = "$1"; then
       tmp_exp=""
@@ -207,12 +207,7 @@ AC_DEFUN([CURL_CHECK_NATIVE_WINDOWS], [
       ])
     fi
   ])
-  case "$ac_cv_native_windows" in
-    yes)
-      AC_DEFINE_UNQUOTED(NATIVE_WINDOWS, 1,
-        [Define to 1 if you are building a native Windows target.])
-      ;;
-  esac
+  AM_CONDITIONAL(DOING_NATIVE_WINDOWS, test "x$ac_cv_native_windows" = xyes)
 ])
 
 

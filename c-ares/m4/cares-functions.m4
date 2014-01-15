@@ -1,6 +1,6 @@
 #***************************************************************************
 #
-# Copyright (C) 2008 - 2011 by Daniel Stenberg et al
+# Copyright (C) 2008 - 2012 by Daniel Stenberg et al
 #
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for any purpose and without fee is hereby granted, provided
@@ -15,7 +15,7 @@
 #***************************************************************************
 
 # File version for 'aclocal' use. Keep it a single number.
-# serial 43
+# serial 46
 
 
 dnl CARES_INCLUDES_ARPA_INET
@@ -883,6 +883,7 @@ AC_DEFUN([CARES_CHECK_FUNC_GETADDRINFO], [
   AC_REQUIRE([CARES_INCLUDES_STRING])dnl
   AC_REQUIRE([CARES_INCLUDES_SYS_SOCKET])dnl
   AC_REQUIRE([CARES_INCLUDES_NETDB])dnl
+  AC_REQUIRE([CURL_CHECK_NATIVE_WINDOWS])dnl
   #
   tst_links_getaddrinfo="unknown"
   tst_proto_getaddrinfo="unknown"
@@ -1059,18 +1060,57 @@ AC_DEFUN([CARES_CHECK_FUNC_GETADDRINFO], [
         tst_tsafe_getaddrinfo="yes"
         ;;
     esac
+    if test "$tst_tsafe_getaddrinfo" = "unknown" &&
+       test "$ac_cv_native_windows" = "yes"; then
+      tst_tsafe_getaddrinfo="yes"
+    fi
     if test "$tst_tsafe_getaddrinfo" = "unknown"; then
       CURL_CHECK_DEF_CC([h_errno], [
-        $cares_includes_ws2tcpip
         $cares_includes_sys_socket
         $cares_includes_netdb
         ], [silent])
-      if test "$curl_cv_have_def_h_errno" = "no"; then
-        tst_tsafe_getaddrinfo="no"
+      if test "$curl_cv_have_def_h_errno" = "yes"; then
+        tst_h_errno_macro="yes"
+      else
+        tst_h_errno_macro="no"
       fi
-    fi
-    if test "$tst_tsafe_getaddrinfo" = "unknown"; then
-      tst_tsafe_getaddrinfo="yes"
+      AC_COMPILE_IFELSE([
+        AC_LANG_PROGRAM([[
+          $cares_includes_sys_socket
+          $cares_includes_netdb
+        ]],[[
+          h_errno = 2;
+          if(0 != h_errno)
+            return 1;
+        ]])
+      ],[
+        tst_h_errno_modifiable_lvalue="yes"
+      ],[
+        tst_h_errno_modifiable_lvalue="no"
+      ])
+      AC_COMPILE_IFELSE([
+        AC_LANG_PROGRAM([[
+        ]],[[
+#if defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200809L)
+          return 0;
+#elif defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 700)
+          return 0;
+#else
+          force compilation error
+#endif
+        ]])
+      ],[
+        tst_h_errno_sbs_issue_7="yes"
+      ],[
+        tst_h_errno_sbs_issue_7="no"
+      ])
+      if test "$tst_h_errno_macro" = "no" &&
+         test "$tst_h_errno_modifiable_lvalue" = "no" &&
+         test "$tst_h_errno_sbs_issue_7" = "no"; then
+        tst_tsafe_getaddrinfo="no"
+      else
+        tst_tsafe_getaddrinfo="yes"
+      fi
     fi
     AC_MSG_RESULT([$tst_tsafe_getaddrinfo])
     if test "$tst_tsafe_getaddrinfo" = "yes"; then
@@ -1368,6 +1408,7 @@ dnl HAVE_GETHOSTNAME will be defined.
 AC_DEFUN([CARES_CHECK_FUNC_GETHOSTNAME], [
   AC_REQUIRE([CARES_INCLUDES_WINSOCK2])dnl
   AC_REQUIRE([CARES_INCLUDES_UNISTD])dnl
+  AC_REQUIRE([CARES_PREPROCESS_CALLCONV])dnl
   #
   tst_links_gethostname="unknown"
   tst_proto_gethostname="unknown"
@@ -1422,6 +1463,35 @@ AC_DEFUN([CARES_CHECK_FUNC_GETHOSTNAME], [
       AC_MSG_RESULT([no])
       tst_compi_gethostname="no"
     ])
+  fi
+  #
+  if test "$tst_compi_gethostname" = "yes"; then
+    AC_MSG_CHECKING([for gethostname arg 2 data type])
+    tst_gethostname_type_arg2="unknown"
+    for tst_arg1 in 'char *' 'unsigned char *' 'void *'; do
+      for tst_arg2 in 'int' 'unsigned int' 'size_t'; do
+        if test "$tst_gethostname_type_arg2" = "unknown"; then
+          AC_COMPILE_IFELSE([
+            AC_LANG_PROGRAM([[
+              $cares_includes_winsock2
+              $cares_includes_unistd
+              $cares_preprocess_callconv
+              extern int FUNCALLCONV gethostname($tst_arg1, $tst_arg2);
+            ]],[[
+              if(0 != gethostname(0, 0))
+                return 1;
+            ]])
+          ],[
+            tst_gethostname_type_arg2="$tst_arg2"
+          ])
+        fi
+      done
+    done
+    AC_MSG_RESULT([$tst_gethostname_type_arg2])
+    if test "$tst_gethostname_type_arg2" != "unknown"; then
+      AC_DEFINE_UNQUOTED(GETHOSTNAME_TYPE_ARG2, $tst_gethostname_type_arg2,
+        [Define to the type of arg 2 for gethostname.])
+    fi
   fi
   #
   if test "$tst_compi_gethostname" = "yes"; then

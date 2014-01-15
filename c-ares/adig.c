@@ -16,9 +16,6 @@
 
 #include "ares_setup.h"
 
-#ifdef HAVE_SYS_SOCKET_H
-#  include <sys/socket.h>
-#endif
 #ifdef HAVE_NETINET_IN_H
 #  include <netinet/in.h>
 #endif
@@ -37,25 +34,12 @@
 #  include <arpa/nameser_compat.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#  include <unistd.h>
-#endif
 #ifdef HAVE_STRINGS_H
 #  include <strings.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
 #include "ares.h"
 #include "ares_dns.h"
-#include "inet_ntop.h"
-#include "inet_net_pton.h"
 #include "ares_getopt.h"
 #include "ares_nowarn.h"
 
@@ -390,9 +374,9 @@ int main(int argc, char **argv)
         break;
       tvp = ares_timeout(channel, NULL, &tv);
       count = select(nfds, &read_fds, &write_fds, NULL, tvp);
-      if (count < 0 && SOCKERRNO != EINVAL)
+      if (count < 0 && (status = SOCKERRNO) != EINVAL)
         {
-          perror("select");
+          printf("select fail: %d", status);
           return 1;
         }
       ares_process(channel, &read_fds, &write_fds);
@@ -649,7 +633,7 @@ static const unsigned char *display_rr(const unsigned char *aptr,
        */
       if (dlen < 2)
         return NULL;
-      printf("\t%d", DNS__16BIT(aptr));
+      printf("\t%d", (int)DNS__16BIT(aptr));
       status = ares_expand_name(aptr + 2, abuf, alen, &name.as_char, &len);
       if (status != ARES_SUCCESS)
         return NULL;
@@ -676,10 +660,10 @@ static const unsigned char *display_rr(const unsigned char *aptr,
       p += len;
       if (p + 20 > aptr + dlen)
         return NULL;
-      printf("\t\t\t\t\t\t( %lu %lu %lu %lu %lu )",
-             (unsigned long)DNS__32BIT(p), (unsigned long)DNS__32BIT(p+4),
-             (unsigned long)DNS__32BIT(p+8), (unsigned long)DNS__32BIT(p+12),
-             (unsigned long)DNS__32BIT(p+16));
+      printf("\t\t\t\t\t\t( %u %u %u %u %u )",
+             DNS__32BIT(p), DNS__32BIT(p+4),
+             DNS__32BIT(p+8), DNS__32BIT(p+12),
+             DNS__32BIT(p+16));
       break;
 
     case T_TXT:
@@ -723,9 +707,9 @@ static const unsigned char *display_rr(const unsigned char *aptr,
        * priority, weight, and port, followed by a domain name.
        */
 
-      printf("\t%d", DNS__16BIT(aptr));
-      printf(" %d", DNS__16BIT(aptr + 2));
-      printf(" %d", DNS__16BIT(aptr + 4));
+      printf("\t%d", (int)DNS__16BIT(aptr));
+      printf(" %d", (int)DNS__16BIT(aptr + 2));
+      printf(" %d", (int)DNS__16BIT(aptr + 4));
 
       status = ares_expand_name(aptr + 6, abuf, alen, &name.as_char, &len);
       if (status != ARES_SUCCESS)
@@ -736,8 +720,8 @@ static const unsigned char *display_rr(const unsigned char *aptr,
 
     case T_NAPTR:
 
-      printf("\t%d", DNS__16BIT(aptr)); /* order */
-      printf(" %d\n", DNS__16BIT(aptr + 2)); /* preference */
+      printf("\t%d", (int)DNS__16BIT(aptr)); /* order */
+      printf(" %d\n", (int)DNS__16BIT(aptr + 2)); /* preference */
 
       p = aptr + 4;
       status = ares_expand_string(p, abuf, alen, &name.as_uchar, &len);

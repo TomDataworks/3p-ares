@@ -34,14 +34,6 @@
 
 #include "ares_setup.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctype.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
@@ -49,7 +41,6 @@
 #if defined(WIN32) && !defined(WATT32)
   #include <winsock.h>
 #else
-  #include <sys/socket.h>
   #include <arpa/inet.h>
   #include <netinet/in.h>
   #include <netdb.h>
@@ -57,8 +48,6 @@
 
 #include "ares.h"
 #include "ares_getopt.h"
-#include "inet_net_pton.h"
-#include "inet_ntop.h"
 #include "ares_nowarn.h"
 
 #ifndef HAVE_STRDUP
@@ -89,7 +78,7 @@ static int         verbose    = 0;
 #define TRACE(fmt) do {               \
                      if (verbose > 0) \
                        printf fmt ;   \
-                   } while (0)
+                   } WHILE_FALSE
 
 static void wait_ares(ares_channel channel);
 static void callback(void *arg, int status, int timeouts, struct hostent *host);

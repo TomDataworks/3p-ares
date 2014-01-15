@@ -170,6 +170,10 @@ SOURCE=..\..\ares_cancel.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\ares_create_query.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\ares_data.c
 # End Source File
 # Begin Source File
@@ -254,11 +258,19 @@ SOURCE=..\..\ares_parse_mx_reply.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\ares_parse_naptr_reply.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\ares_parse_ns_reply.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\ares_parse_ptr_reply.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\ares_parse_soa_reply.c
 # End Source File
 # Begin Source File
 

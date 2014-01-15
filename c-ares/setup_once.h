@@ -2,7 +2,7 @@
 #define __SETUP_ONCE_H
 
 
-/* Copyright (C) 2004 - 2011 by Daniel Stenberg et al
+/* Copyright (C) 2004 - 2013 by Daniel Stenberg et al
  *
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for any purpose and without fee is hereby granted, provided
@@ -72,8 +72,36 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_STDBOOL_H
+#if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
 #include <stdbool.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef __hpux
+#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
+#    ifdef _APP32_64BIT_OFF_T
+#      define OLD_APP32_64BIT_OFF_T _APP32_64BIT_OFF_T
+#      undef _APP32_64BIT_OFF_T
+#    else
+#      undef OLD_APP32_64BIT_OFF_T
+#    endif
+#  endif
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef __hpux
+#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
+#    ifdef OLD_APP32_64BIT_OFF_T
+#      define _APP32_64BIT_OFF_T OLD_APP32_64BIT_OFF_T
+#      undef OLD_APP32_64BIT_OFF_T
+#    endif
+#  endif
 #endif
 
 
@@ -232,6 +260,8 @@ struct timeval {
 #  define sclose(x)  closesocket((x))
 #elif defined(HAVE_CLOSESOCKET_CAMEL)
 #  define sclose(x)  CloseSocket((x))
+#elif defined(HAVE_CLOSE_S)
+#  define sclose(x)  close_s((x))
 #else
 #  define sclose(x)  close((x))
 #endif
@@ -257,6 +287,18 @@ struct timeval {
                           (((unsigned char)x) == '\t'))
 
 #define TOLOWER(x)  (tolower((int)  ((unsigned char)x)))
+
+
+/*
+ * 'bool' stuff compatible with HP-UX headers.
+ */
+
+#if defined(__hpux) && !defined(HAVE_BOOL_T)
+   typedef int bool;
+#  define false 0
+#  define true 1
+#  define HAVE_BOOL_T
+#endif
 
 
 /*
@@ -300,6 +342,27 @@ struct timeval {
 
 
 /*
+ * Macro WHILE_FALSE may be used to build single-iteration do-while loops,
+ * avoiding compiler warnings. Mostly intended for other macro definitions.
+ */
+
+#define WHILE_FALSE  while(0)
+
+#if defined(_MSC_VER) && !defined(__POCC__)
+#  undef WHILE_FALSE
+#  if (_MSC_VER < 1500)
+#    define WHILE_FALSE  while(1, 0)
+#  else
+#    define WHILE_FALSE \
+__pragma(warning(push)) \
+__pragma(warning(disable:4127)) \
+while(0) \
+__pragma(warning(pop))
+#  endif
+#endif
+
+
+/*
  * Typedef to 'int' if sig_atomic_t is not an available 'typedefed' type.
  */
 
@@ -336,7 +399,7 @@ typedef int sig_atomic_t;
 #ifdef DEBUGBUILD
 #define DEBUGF(x) x
 #else
-#define DEBUGF(x) do { } while (0)
+#define DEBUGF(x) do { } WHILE_FALSE
 #endif
 
 
@@ -347,7 +410,7 @@ typedef int sig_atomic_t;
 #if defined(DEBUGBUILD) && defined(HAVE_ASSERT_H)
 #define DEBUGASSERT(x) assert(x)
 #else
-#define DEBUGASSERT(x) do { } while (0)
+#define DEBUGASSERT(x) do { } WHILE_FALSE
 #endif
 
 
@@ -460,18 +523,6 @@ typedef int sig_atomic_t;
 
 
 /*
- *  System error codes for Windows CE
- */
-
-#if defined(WIN32) && !defined(HAVE_ERRNO_H)
-#define ENOENT       ERROR_FILE_NOT_FOUND
-#define ESRCH        ERROR_PATH_NOT_FOUND
-#define ENOMEM       ERROR_NOT_ENOUGH_MEMORY
-#define ENOSPC       ERROR_INVALID_PARAMETER
-#endif
-
-
-/*
  *  Actually use __32_getpwuid() on 64-bit VMS builds for getpwuid()
  */
 
@@ -501,4 +552,3 @@ typedef int sig_atomic_t;
 
 
 #endif /* __SETUP_ONCE_H */
-
