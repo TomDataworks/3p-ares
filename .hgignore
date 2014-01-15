@@ -1,2 +1,6 @@
 syntax: glob
+ares-1.7.1-*.tar.bz2
+c-ares-1.7.1/
 build-*
+stage/
+autobuild-parabuild-bootstrap/
