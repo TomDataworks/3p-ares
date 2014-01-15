@@ -59,7 +59,8 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/libcares.a</string>
+            <string>lib/release/libcares.a</string>
+            <string>lib/debug/libcares.a</string>
           </array>
           <key>name</key>
           <string>darwin</string>
@@ -82,6 +83,7 @@
           <key>manifest</key>
           <array>
             <string>lib/release/libcares.a</string>
+            <string>lib/debug/libcares.a</string>
           </array>
           <key>name</key>
           <string>linux</string>
@@ -111,9 +113,9 @@
         </map>
       </map>
       <key>source_directory</key>
-      <string>c-ares-1.7.5</string>
+      <string>c-ares</string>
       <key>version</key>
-      <string>1.7.5</string>
+      <string>1.10.0</string>
     </map>
     <key>type</key>
     <string>autobuild</string>

@@ -15,8 +15,8 @@ if [ "$OSTYPE" = "cygwin" ] ; then
     export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
 fi
 
-ARES_VERSION=1.7.5
-ARES_SOURCE_DIR="c-ares-$ARES_VERSION"
+ARES_VERSION=1.10.0
+ARES_SOURCE_DIR="c-ares"
 
 
 # load autbuild provided shell functions and variables
@@ -35,39 +35,107 @@ pushd "$ARES_SOURCE_DIR"
             nmake /f Makefile.msvc CFG=lib-debug
             nmake /f Makefile.msvc CFG=lib-release
 
-
             mkdir -p "$stage/lib"/{debug,release}
-            cp "msvc100/cares/lib-debug/libcaresd.lib" \
+            cp -a "msvc100/cares/lib-debug/libcaresd.lib" \
                 "$stage/lib/debug/areslib.lib"
-            cp "msvc100/cares/lib-release/libcares.lib" \
+            cp -a "msvc100/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
+
+            mkdir -p "$stage/include/ares"
+            cp -a {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
+                "$stage/include/ares/"
         ;;
+
         "darwin")
-            opts='-arch i386 -iwithsysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5'
-            export CFLAGS="$opts"
-            export CXXFLAGS="$opts"
-            export LDFLAGS="$opts"
-            ./configure --prefix="$stage"
+            opts="${TARGET_OPTS:--arch i386 -iwithsysroot /Developer/SDKs/MacOSX10.7.sdk -mmacosx-version-min=10.6}"
+
+            # Debug first
+            CFLAGS="$opts -g" CXXFLAGS="$opts -g" LDFLAGS="$opts -g" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/debug" --includedir="$stage/include/ares" --enable-debug
             make
             make install
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            make distclean
+
+            # Release last
+            CFLAGS="$opts" CXXFLAGS="$opts" LDFLAGS="$opts" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/release" --includedir="$stage/include/ares" --enable-optimize
+            make
+            make install
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            # Use Release as source of includes
+            mkdir -p "$stage/include/ares"
+            cp -a {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
+                "$stage/include/ares/"
+
+            make distclean
         ;;
+
         "linux")
-            LDFLAGS="-m32" CFLAGS="-m32" CXXFLAGS="-m32" ./configure --prefix="$stage"
+            # Prefer gcc-4.6 if available.
+            if [[ -x /usr/bin/gcc-4.6 && -x /usr/bin/g++-4.6 ]]; then
+                export CC=/usr/bin/gcc-4.6
+                export CXX=/usr/bin/g++-4.6
+            fi
+
+            # Default target to 32-bit
+            opts="${TARGET_OPTS:--m32}"
+
+            # Handle any deliberate platform targeting
+            if [ -z "$TARGET_CPPFLAGS" ]; then
+                # Remove sysroot contamination from build environment
+                unset CPPFLAGS
+            else
+                # Incorporate special pre-processing flags
+                export CPPFLAGS="$TARGET_CPPFLAGS"
+            fi
+
+            # Debug first
+            LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/debug" --includedir="$stage/include/ares" --enable-debug
             make
             make install
-            mv "$stage/lib" "$stage/release"
-            mkdir -p "$stage/lib"
-            mv "$stage/release" "$stage/lib"
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            make distclean
+
+            # Release last
+            LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/release" --includedir="$stage/include/ares" --enable-optimize
+            make
+            make install
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            # Use Release as source of includes
+            mkdir -p "$stage/include/ares"
+            cp -a {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
+                "$stage/include/ares/"
+
+            make distclean
         ;;
     esac
     
-    mkdir -p "$stage/include/ares"
-    cp {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
-        "$stage/include/ares/"
-
     mkdir -p "$stage/LICENSES"
-	# copied from http://c-ares.haxx.se/license.html
-    cp ../c-ares-license.txt "$stage/LICENSES/c-ares.txt"
+    # copied from http://c-ares.haxx.se/license.html
+    cp -a ../c-ares-license.txt "$stage/LICENSES/c-ares.txt"
 popd
 
 pass
