@@ -161,5 +161,8 @@ pushd "$ARES_SOURCE_DIR"
     cp -a ../c-ares-license.txt "$stage/LICENSES/c-ares.txt"
 popd
 
+mkdir -p "$stage"/docs/c-ares/
+cp -a README.Linden "$stage"/docs/c-ares/
+
 pass
 
