@@ -50,6 +50,8 @@
     retried as IPv4.  This has not been retained in 1.10.0 and it may
     be moot at this point.
 
+    * On Windows, debug and release build with /Z7 option.
+
     * Possibly some additional work about the general DNS failures we
     have.  EXP-772, etc.
 
@@ -224,7 +226,7 @@ tagged the version 1.0 vendor drop), and then merge the differences
 between the version 1.0 and version 1.1 into our default branch.
 
  $ hg tag -f -r tip current
- $ Optional:  hg tag -r current 1.1
+ $ hg tag -r current 1.1
  $ hg update default
  $ hg merge vendor
  # resolve all the conflicts between their changes and our changes
@@ -247,7 +249,7 @@ like to establish are:
    the 'vendor' branch.  Will almost always be at or close to branch
    head.
 
- * '<version>' Ttag on the 'vendor' branch pointing to a verbatim
+ * '<version>' Tag on the 'vendor' branch pointing to a verbatim
    checkin of a 3rd-party's <version> release.  Example:  '7.21.1' for
    a particular version of libcurl we have used.
 
