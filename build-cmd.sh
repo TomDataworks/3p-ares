@@ -36,9 +36,9 @@ pushd "$ARES_SOURCE_DIR"
             nmake /f Makefile.msvc CFG=lib-release
 
             mkdir -p "$stage/lib"/{debug,release}
-            cp -a "msvc100/cares/lib-debug/libcaresd.lib" \
+            cp -a "msvc120/cares/lib-debug/libcaresd.lib" \
                 "$stage/lib/debug/areslib.lib"
-            cp -a "msvc100/cares/lib-release/libcares.lib" \
+            cp -a "msvc120/cares/lib-release/libcares.lib" \
                 "$stage/lib/release/areslib.lib"
 
             mkdir -p "$stage/include/ares"
