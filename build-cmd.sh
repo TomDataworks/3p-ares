@@ -46,6 +46,26 @@ pushd "$ARES_SOURCE_DIR"
                 "$stage/include/ares/"
         ;;
 
+        "windows64")
+            load_vsvars
+
+            # apply patch to add getnameinfo support
+            #patch -p1 < "../ares-getnameinfo.patch"
+
+            nmake /f Makefile.msvc CFG=lib-debug
+            nmake /f Makefile.msvc CFG=lib-release
+
+            mkdir -p "$stage/lib"/{debug,release}
+            cp -a "msvc120/cares/lib-debug/libcaresd.lib" \
+                "$stage/lib/debug/areslib.lib"
+            cp -a "msvc120/cares/lib-release/libcares.lib" \
+                "$stage/lib/release/areslib.lib"
+
+            mkdir -p "$stage/include/ares"
+            cp -a {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
+                "$stage/include/ares/"
+        ;;
+
         "darwin")
             # Select SDK with full path.  This shouldn't have much effect on this
             # build but adding to establish a consistent pattern.
