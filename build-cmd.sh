@@ -174,6 +174,65 @@ pushd "$ARES_SOURCE_DIR"
 
             make distclean
         ;;
+        "linux64")
+            # Linux build environment at Linden comes pre-polluted with stuff that can
+            # seriously damage 3rd-party builds.  Environmental garbage you can expect
+            # includes:
+            #
+            #    DISTCC_POTENTIAL_HOSTS     arch           root        CXXFLAGS
+            #    DISTCC_LOCATION            top            branch      CC
+            #    DISTCC_HOSTS               build_name     suffix      CXX
+            #    LSDISTCC_ARGS              repo           prefix      CFLAGS
+            #    cxx_version                AUTOBUILD      SIGN        CPPFLAGS
+            #
+            # So, clear out bits that shouldn't affect our configure-directed build
+            # but which do nonetheless.
+            #
+            # unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
+
+            # Default target to 32-bit
+            opts="${TARGET_OPTS:--m64}"
+
+            # Handle any deliberate platform targeting
+            if [ -z "$TARGET_CPPFLAGS" ]; then
+                # Remove sysroot contamination from build environment
+                unset CPPFLAGS
+            else
+                # Incorporate special pre-processing flags
+                export CPPFLAGS="$TARGET_CPPFLAGS"
+            fi
+
+            # Debug first
+            LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/debug" --includedir="$stage/include/ares" --enable-debug
+            make
+            make install
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            make distclean
+
+            # Release last
+            LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
+                ./configure --prefix="$stage" --libdir="$stage/lib/release" --includedir="$stage/include/ares" --enable-optimize
+            make
+            make install
+
+            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                # There's no real unit test but we'll invoke the 'adig' example
+                ./adig secondlife.com
+            fi
+
+            # Use Release as source of includes
+            mkdir -p "$stage/include/ares"
+            cp -a {ares,ares_dns,ares_version,ares_build,ares_rules}.h \
+                "$stage/include/ares/"
+
+            make distclean
+        ;;
     esac
     
     mkdir -p "$stage/LICENSES"
