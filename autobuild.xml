@@ -87,7 +87,9 @@
           </map>
           <key>manifest</key>
           <array>
+            <string>lib/release/pkgconfig/*.pc</string>
             <string>lib/release/libcares.a</string>
+            <string>lib/debug/pkgconfig/*.pc</string>
             <string>lib/debug/libcares.a</string>
           </array>
           <key>name</key>
@@ -110,7 +112,9 @@
           </map>
           <key>manifest</key>
           <array>
+            <string>lib/release/pkgconfig/*.pc</string>
             <string>lib/release/libcares.a</string>
+            <string>lib/debug/pkgconfig/*.pc</string>
             <string>lib/debug/libcares.a</string>
           </array>
           <key>name</key>

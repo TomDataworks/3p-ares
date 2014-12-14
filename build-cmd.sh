@@ -145,9 +145,9 @@ pushd "$ARES_SOURCE_DIR"
 
             # Debug first
             LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
-                ./configure --prefix="$stage" --libdir="$stage/lib/debug" --includedir="$stage/include/ares" --enable-debug
+                ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/debug" --includedir="\${prefix}/include/ares" --enable-debug
             make
-            make install
+            make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
                 # There's no real unit test but we'll invoke the 'adig' example
@@ -158,9 +158,9 @@ pushd "$ARES_SOURCE_DIR"
 
             # Release last
             LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
-                ./configure --prefix="$stage" --libdir="$stage/lib/release" --includedir="$stage/include/ares" --enable-optimize
+                ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/release" --includedir="\${prefix}/include/ares" --enable-optimize
             make
-            make install
+            make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
                 # There's no real unit test but we'll invoke the 'adig' example
@@ -190,7 +190,7 @@ pushd "$ARES_SOURCE_DIR"
             #
             # unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
 
-            # Default target to 32-bit
+            # Default target to 64-bit
             opts="${TARGET_OPTS:--m64}"
 
             # Handle any deliberate platform targeting
@@ -204,9 +204,9 @@ pushd "$ARES_SOURCE_DIR"
 
             # Debug first
             LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
-                ./configure --prefix="$stage" --libdir="$stage/lib/debug" --includedir="$stage/include/ares" --enable-debug
+                ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/debug" --includedir="\${prefix}/include/ares" --enable-debug
             make
-            make install
+            make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
                 # There's no real unit test but we'll invoke the 'adig' example
@@ -217,9 +217,9 @@ pushd "$ARES_SOURCE_DIR"
 
             # Release last
             LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
-                ./configure --prefix="$stage" --libdir="$stage/lib/release" --includedir="$stage/include/ares" --enable-optimize
+                ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/release" --includedir="\${prefix}/include/ares" --enable-optimize
             make
-            make install
+            make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
                 # There's no real unit test but we'll invoke the 'adig' example
