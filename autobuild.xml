@@ -3,14 +3,14 @@
 <map>
     <key>package_description</key>
     <map>
-      <key>license</key>
-      <string>c-ares</string>
-      <key>license_file</key>
-      <string>LICENSES/c-ares.txt</string>
       <key>copyright</key>
       <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
       <key>description</key>
       <string>C-ares, an asynchronous resolver library.</string>
+      <key>license</key>
+      <string>c-ares</string>
+      <key>license_file</key>
+      <string>LICENSES/c-ares.txt</string>
       <key>name</key>
       <string>ares</string>
       <key>platforms</key>
@@ -167,14 +167,12 @@
           <string>windows64</string>
         </map>
       </map>
-      <key>source_directory</key>
-      <string>c-ares</string>
-      <key>version</key>
-      <string>1.10.0</string>
+      <key>version_file</key>
+      <string>VERSION.txt</string>
     </map>
     <key>type</key>
     <string>autobuild</string>
     <key>version</key>
-    <string>1.2</string>
+    <string>1.3</string>
   </map>
 </llsd>

@@ -24,6 +24,8 @@ eval "$("$AUTOBUILD" source_environment)"
 
 stage="$(pwd)/stage"
 
+echo "${ARES_VERSION}" > "${stage}/VERSION.txt"
+
 pushd "$ARES_SOURCE_DIR"
     case "$AUTOBUILD_PLATFORM" in
         "windows")
