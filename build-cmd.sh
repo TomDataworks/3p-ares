@@ -127,14 +127,17 @@ pushd "$ARES_SOURCE_DIR"
             #
             # unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
 
-            # Prefer gcc-4.6 if available.
-            if [[ -x /usr/bin/gcc-4.6 && -x /usr/bin/g++-4.6 ]]; then
-                export CC=/usr/bin/gcc-4.6
-                export CXX=/usr/bin/g++-4.6
+            # Prefer gcc-4.8 if available.
+            if [[ -x /usr/bin/gcc-4.8 && -x /usr/bin/g++-4.8 ]]; then
+                export CC=/usr/bin/gcc-4.8
+                export CXX=/usr/bin/g++-4.8
             fi
 
             # Default target to 32-bit
             opts="${TARGET_OPTS:--m32}"
+            JOBS=`cat /proc/cpuinfo | grep processor | wc -l`
+            HARDENED="-fstack-protector-strong"
+            HARDENED_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 
             # Handle any deliberate platform targeting
             if [ -z "$TARGET_CPPFLAGS" ]; then
@@ -148,7 +151,7 @@ pushd "$ARES_SOURCE_DIR"
             # Debug first
             LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
                 ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/debug" --includedir="\${prefix}/include/ares" --enable-debug
-            make
+            make -j$JOBS
             make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
@@ -159,9 +162,9 @@ pushd "$ARES_SOURCE_DIR"
             make distclean
 
             # Release last
-            LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
+            LDFLAGS="$opts" CFLAGS="$opts $HARDENED" CXXFLAGS="$opts $HARDENED" CPPFLAGS="$HARDENED_CPPFLAGS" \
                 ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/release" --includedir="\${prefix}/include/ares" --enable-optimize
-            make
+            make -j$JOBS
             make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
@@ -192,8 +195,17 @@ pushd "$ARES_SOURCE_DIR"
             #
             # unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
 
+            # Prefer gcc-4.8 if available.
+            if [[ -x /usr/bin/gcc-4.8 && -x /usr/bin/g++-4.8 ]]; then
+                export CC=/usr/bin/gcc-4.8
+                export CXX=/usr/bin/g++-4.8
+            fi
+
             # Default target to 64-bit
             opts="${TARGET_OPTS:--m64}"
+            JOBS=`cat /proc/cpuinfo | grep processor | wc -l`
+            HARDENED="-fstack-protector-strong"
+            HARDENED_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 
             # Handle any deliberate platform targeting
             if [ -z "$TARGET_CPPFLAGS" ]; then
@@ -207,7 +219,7 @@ pushd "$ARES_SOURCE_DIR"
             # Debug first
             LDFLAGS="$opts -g" CFLAGS="$opts -g" CXXFLAGS="$opts -g" \
                 ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/debug" --includedir="\${prefix}/include/ares" --enable-debug
-            make
+            make -j$JOBS
             make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
@@ -218,9 +230,9 @@ pushd "$ARES_SOURCE_DIR"
             make distclean
 
             # Release last
-            LDFLAGS="$opts" CFLAGS="$opts" CXXFLAGS="$opts" \
+            LDFLAGS="$opts" CFLAGS="$opts $HARDENED" CXXFLAGS="$opts $HARDENED" CPPFLAGS="$HARDENED_CPPFLAGS" \
                 ./configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/release" --includedir="\${prefix}/include/ares" --enable-optimize
-            make
+            make -j$JOBS
             make install DESTDIR="$stage"
 
             if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
